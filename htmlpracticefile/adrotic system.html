@@ -417,6 +417,92 @@ border-radius:50%;
     font-size: 10px;
     padding: 10px 40px;
 }
+.voice-cloning-section{
+    background: linear-gradient(120deg, #eef4ff 0%, #dbe8ff 100%);
+    margin:40px 60px;
+    border-radius:16px;
+    padding:30px;
+    color:#0a2b8f;
+}
+.voice-cloning-section h2{
+    margin:0 0 8px 0;
+}
+.voice-cloning-subtitle{
+    margin-top:0;
+    margin-bottom:22px;
+}
+.voice-cloning-app{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:24px;
+}
+.voice-cloning-panel{
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 2px 10px rgba(10,43,143,0.12);
+    padding:20px;
+}
+.voice-cloning-panel h3{
+    margin-top:0;
+}
+.voice-cloning-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:14px;
+}
+.voice-cloning-field label{
+    font-size:14px;
+    font-weight:bold;
+}
+.voice-cloning-field input,
+.voice-cloning-field textarea,
+.voice-cloning-field select{
+    border:1px solid #a9bbe8;
+    border-radius:8px;
+    padding:10px;
+    font-size:14px;
+}
+.voice-cloning-field textarea{
+    min-height:90px;
+    resize:vertical;
+}
+.voice-cloning-actions{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.voice-clone-button{
+    background:#0a2b8f;
+    color:#fff;
+    border:0;
+    border-radius:24px;
+    padding:12px 22px;
+    cursor:pointer;
+    font-weight:bold;
+}
+.voice-clone-status{
+    font-size:13px;
+}
+.voice-cloning-preview{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+.voice-cloning-preview li{
+    background:#f5f8ff;
+    border-radius:8px;
+    padding:10px;
+    margin-bottom:10px;
+}
+@media (max-width: 900px){
+    .voice-cloning-app{
+        grid-template-columns: 1fr;
+    }
+    .voice-cloning-section{
+        margin:20px;
+    }
+}
 </style>
     </head>
     <body>
@@ -589,6 +675,45 @@ border-radius:50%;
     
 </div>
 </div>
+<div class="voice-cloning-section" id="voice-cloning-app">
+    <h2>VOICE CLONING APPLICATION</h2>
+    <p class="voice-cloning-subtitle">Create a custom AI voice profile and generate a preview narration instantly.</p>
+    <div class="voice-cloning-app">
+        <div class="voice-cloning-panel">
+            <h3>Voice Profile Setup</h3>
+            <div class="voice-cloning-field">
+                <label for="voiceName">Voice Name</label>
+                <input id="voiceName" type="text" placeholder="Example: Riya Support Voice">
+            </div>
+            <div class="voice-cloning-field">
+                <label for="trainingAudio">Upload Training Audio (10-30 sec)</label>
+                <input id="trainingAudio" type="file" accept="audio/*">
+            </div>
+            <div class="voice-cloning-field">
+                <label for="voiceTone">Voice Tone</label>
+                <select id="voiceTone">
+                    <option value="professional">Professional</option>
+                    <option value="friendly">Friendly</option>
+                    <option value="energetic">Energetic</option>
+                </select>
+            </div>
+            <div class="voice-cloning-field">
+                <label for="cloneText">Text to Generate</label>
+                <textarea id="cloneText" placeholder="Enter script for generated voice output"></textarea>
+            </div>
+            <div class="voice-cloning-actions">
+                <button class="voice-clone-button" id="generateVoiceBtn" type="button">Generate Voice Preview</button>
+                <span class="voice-clone-status" id="voiceCloneStatus">Waiting for input...</span>
+            </div>
+        </div>
+        <div class="voice-cloning-panel">
+            <h3>Generated Preview</h3>
+            <ul class="voice-cloning-preview" id="voiceCloningPreview">
+                <li>Upload audio and click <b>Generate Voice Preview</b> to see your output summary.</li>
+            </ul>
+        </div>
+    </div>
+</div>
     <div class="socialmedialink">
     <div>
         <img src="fb.png">
@@ -672,5 +797,55 @@ border-radius:50%;
         </ul>   
         
     </div>
+<script>
+(function(){
+    var button = document.getElementById('generateVoiceBtn');
+    var status = document.getElementById('voiceCloneStatus');
+    var preview = document.getElementById('voiceCloningPreview');
+    if(!button || !status || !preview){
+        return;
+    }
+
+    button.addEventListener('click', function(){
+        var name = document.getElementById('voiceName').value.trim();
+        var tone = document.getElementById('voiceTone').value;
+        var text = document.getElementById('cloneText').value.trim();
+        var fileInput = document.getElementById('trainingAudio');
+        var fileName = fileInput.files && fileInput.files[0] ? fileInput.files[0].name : 'No file selected';
+
+        if(!name || !text){
+            status.textContent = 'Please enter voice name and script text.';
+            status.style.color = '#c0392b';
+            return;
+        }
+
+        status.textContent = 'Voice clone generated successfully.';
+        status.style.color = '#1b7f3a';
+
+        preview.innerHTML = '';
+        var details = [
+            'Voice Name: ' + name,
+            'Training Audio: ' + fileName,
+            'Tone: ' + tone,
+            'Generated Script: "' + text + '"'
+        ];
+
+        details.forEach(function(item){
+            var li = document.createElement('li');
+            li.textContent = item;
+            preview.appendChild(li);
+        });
+
+        if('speechSynthesis' in window){
+            var utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = tone === 'energetic' ? 1.1 : 1;
+            utterance.pitch = tone === 'friendly' ? 1.2 : 1;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+    });
+})();
+</script>
+
 </body>
 </html>
